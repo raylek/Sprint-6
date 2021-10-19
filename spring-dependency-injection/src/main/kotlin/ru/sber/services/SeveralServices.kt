@@ -26,15 +26,10 @@ class SecondServiceImpl : ServiceInterface {
 @Component
 class SeveralBeanInjectionService {
     @Autowired
-    lateinit var services: ArrayList<ServiceInterface>
+    lateinit var services: Set<ServiceInterface>
 
     override fun toString(): String {
         return "SeveralBeanInjectionService(services=$services)"
-    }
-
-    @PostConstruct
-    fun init() {
-        services.add(SecondServiceImpl())
     }
 }
 
