@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<br><br><br>
+<div style="text-align: center;">
+<table>
+    <tr>
+        <th>id</th>
+        <th>Имя</th>
+        <th>Адрес</th>
+    </tr>
+    <tr th:each="mapItem:${records}">
+        <td th:utext="${mapItem.key}"></td>
+        <td th:utext="${mapItem.value.name}"></td>
+        <td th:utext="${mapItem.value.address}"></td>
+    </tr>
+</table>
+</div>
+</body>
+</html>
