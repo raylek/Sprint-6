@@ -3,6 +3,7 @@ package ru.sber.springmvc.controller
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import ru.sber.springmvc.dto.Record
 import ru.sber.springmvc.service.AddressBookService

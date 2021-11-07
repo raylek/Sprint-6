@@ -17,7 +17,6 @@ import ru.sber.springmvc.controller.MVCControllerTest.Companion.cookieTime
 internal class LoginControllerTest {
 
     @Autowired
-    lateinit var loginController: LoginController
     lateinit var mvcController: MVCController
     lateinit var restController: RESTController
 

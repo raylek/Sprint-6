@@ -6,7 +6,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan
 
 @SpringBootApplication
 @ServletComponentScan
-class SpringMvcApplication
+open class SpringMvcApplication
 
 fun main(args: Array<String>) {
 	runApplication<SpringMvcApplication>(*args)
