@@ -9,6 +9,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.*
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -43,24 +44,43 @@ internal class RESTControllerTest {
         addressBook.addRecord(Record(nameForRecord, addressForRecord))
     }
 
+    @WithMockUser(authorities = ["ROLE_API"])
     @Test
     fun getListOfRecords() {
         mockMvc.perform(
             get(url("api/list"))
-                .contentType(MediaType.APPLICATION_JSON))
+        )
             .andExpect(status().isOk())
-            .andDo(::print)
     }
 
+    @Test
+    fun getListOfRecordsRedirect() {
+        mockMvc.perform(
+            get(url("api/list"))
+        )
+            .andExpect(status().`is`(302))
+    }
+
+    @WithMockUser(authorities = ["ROLE_USER"])
+    @Test
+    fun getListOfRecordsForbiden() {
+        mockMvc.perform(
+            get(url("api/list"))
+        )
+            .andExpect(status().`is`(403))
+    }
+
+    @WithMockUser(authorities = ["ROLE_API"])
     @Test
     fun getRecord() {
         mockMvc.perform(
             get(url("api/0/view"))
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
             .andExpect(status().isOk())
-            .andDo(::print)
     }
 
+    @WithMockUser(authorities = ["ROLE_API"])
     @Test
     fun editRecord() {
         val jsonData = """{
@@ -72,11 +92,11 @@ internal class RESTControllerTest {
             put("/api/0/edit")
                 .content(jsonData)
                 .contentType(APPLICATION_JSON)
-        )
-            .andDo(::print)
+        ).andDo(::print)
             .andExpect(status().isOk())
     }
 
+    @WithMockUser(authorities = ["ROLE_API"])
     @Test
     fun addRecord() {
         val jsonData = """{
@@ -88,17 +108,15 @@ internal class RESTControllerTest {
             post("/api/add")
                 .content(jsonData)
                 .contentType(APPLICATION_JSON)
-        )
-            .andDo(::print)
+        ).andDo(::print)
             .andExpect(status().isOk())
     }
 
+    @WithMockUser(authorities = ["ROLE_API"])
     @Test
     fun deleteRecord() {
         mockMvc.perform(
             delete("/api/0/delete")
-        )
-            .andDo(::print)
-            .andExpect(status().isOk())
+        ).andExpect(status().isOk())
     }
 }

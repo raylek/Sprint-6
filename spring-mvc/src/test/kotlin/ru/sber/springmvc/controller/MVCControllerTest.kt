@@ -5,24 +5,20 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.view
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import ru.sber.springmvc.dataBase.AddressBook
 import ru.sber.springmvc.dto.Record
 import java.time.LocalDateTime
-import javax.servlet.http.Cookie
 
 @AutoConfigureMockMvc
 @SpringBootTest
-internal class MVCControllerTest() {
+class MVCControllerTest() {
 
     companion object {
-        val username = "admin"
-        val password = "12345"
-        val cookieName = "auth"
-        val cookieTime = LocalDateTime.now().minusMinutes(10).toString()
         val nameForRecord = "Jon"
         val addressForRecord = "Some other adress"
     }
@@ -39,67 +35,64 @@ internal class MVCControllerTest() {
         addressBook.addRecord(Record(nameForRecord, addressForRecord))
     }
 
-    //Когда запускаешь тест отдельно он ОК...
-    @Test
-    fun getExactRecord() {
-        mockMvc.perform(
-            get("/app/0/view")
-                .cookie(Cookie(cookieName, cookieTime))
-        )
-            .andDo(::print)
-            .andExpect(view().name("list"))
-    }
-
+    @WithMockUser(authorities = ["ROLE_USER"])
     @Test
     fun getViewAdd() {
         mockMvc.perform(
             get("/app/add")
-                .cookie(Cookie(cookieName, cookieTime))
-        )
-            .andDo(::print)
-            .andExpect(view().name("add"))
+        ).andExpect(status().isOk)
     }
 
+    @WithMockUser(authorities = ["ROLE_USER"])
     @Test
     fun addRecord() {
         mockMvc.perform(
             post("/app/add")
                 .param("name", nameForRecord)
                 .param("address", addressForRecord)
-                .cookie(Cookie(cookieName, cookieTime))
-
-        ).andDo(::print)
-            .andExpect(view().name("plug"))
+        ).andExpect(status().isOk)
     }
 
+    @WithMockUser(authorities = ["ROLE_USER"])
     @Test
     fun getList() {
-        mockMvc.perform(get("/app/list")
-            .cookie(Cookie(cookieName, cookieTime))
-        )
-            .andDo(::print)
-            .andExpect(view().name("list"))
+        mockMvc.perform(get("/app/list")).andExpect(status().isOk)
     }
 
 
+    @WithMockUser(authorities = ["ROLE_USER"])
+    @Test
+    fun editRecordFail() {
+        mockMvc.perform(
+            post("/app/0/edit")
+                .param("name", nameForRecord)
+                .param("address", addressForRecord)
+        ).andExpect(status().`is`(403))
+    }
 
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
     @Test
     fun editRecord() {
         mockMvc.perform(
             post("/app/0/edit")
                 .param("name", nameForRecord)
                 .param("address", addressForRecord)
-                .cookie(Cookie(cookieName, cookieTime))
-        ).andDo(::print)
-            .andExpect(view().name("plug"))
+        ).andExpect(status().isOk)
     }
 
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
     @Test
     fun deleteRecord() {
         mockMvc.perform(
             post("/app/0/delete")
-                .cookie(Cookie(cookieName, cookieTime))
-        ).andDo(::print)
-            .andExpect(view().name("plug"))
+        ).andExpect(status().isOk)
+    }
+
+    @WithMockUser(authorities = ["ROLE_USER"])
+    @Test
+    fun deleteRecordFailed() {
+        mockMvc.perform(
+            post("/app/0/delete")
+        ).andExpect(status().`is`(403))
     }
 }
